@@ -22,6 +22,7 @@ class Analysis():
         self.ana_args, _ = parser.parse_known_args(cmdline_args['unknown'])
 
         # self.prod_tag = "FCChh/fcc_v07/II/"
+        # self.input_dir = "/bundle/data/ATLAS/jdegens/FCC//DelphesEvents/fcc_v07/II/"
         self.input_dir = "/eos/experiment/fcc/hh/generation/DelphesEvents/fcc_v07/II/"
         self.process_list = {
             # Run over the full statistics and save it to one output file named
@@ -65,7 +66,7 @@ class Analysis():
 
 
                 # Get tau jets
-                .Define("taus_tagged_loose", "AnalysisFCChh::get_tagged_jets(Jet, Jet_tau_tags, _Jet_HF_tags_particle, _Jet_tau_tags_parameters, 0)")
+                .Define("taus_tagged_loose", "AnalysisFCChh::get_tagged_jets(Jet, Jet_tau_tags, _Jet_tau_tags_particle, _Jet_tau_tags_parameters, 0)")
                 .Define("selpt_taus", "FCCAnalyses::ReconstructedParticle::sel_pt(30.)(taus_tagged_loose)")
                 .Define("sel_taus_unsort", "FCCAnalyses::ReconstructedParticle::sel_eta(4)(selpt_taus)")
                 .Define("sel_taus", "AnalysisFCChh::SortParticleCollection(sel_taus_unsort)") #sort by pT
@@ -155,7 +156,7 @@ class Analysis():
                 .Define("lepton_charge", "FCCAnalyses::ReconstructedParticle::get_charge(sel_leptons)")
 
 
-                .Filter("n_jets >= 1")
+                .Filter("n_taus >= 1")
                 #.Filter("Min(lepton_eta) > - 6 && Max(lepton_eta) < 6")
                 .Filter("n_bjets >= 2")
 
