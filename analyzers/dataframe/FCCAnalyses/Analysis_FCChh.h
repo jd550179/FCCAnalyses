@@ -187,6 +187,9 @@ get_tagged_jets(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> jets,
                 ROOT::VecOps::RVec<edm4hep::ParticleIDData> jet_tags,
                 ROOT::VecOps::RVec<podio::ObjectID> jet_tags_indices,
                 ROOT::VecOps::RVec<float> jet_tags_values, int algoIndex);
+ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> remove_from_collection(
+  		ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> x,
+  		ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> y); 
 ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData>
 get_untagged_jets(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> jets,
                   ROOT::VecOps::RVec<int> index,

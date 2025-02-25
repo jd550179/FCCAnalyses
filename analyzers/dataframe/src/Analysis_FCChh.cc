@@ -933,6 +933,37 @@ AnalysisFCChh::get_tagged_jets(
   return tagged_jets;
 }
 
+ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> AnalysisFCChh::remove_from_collection(
+  		ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> x,
+  		ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> y) {
+  //to be kept as ROOT::VecOps::RVec
+  std::vector<edm4hep::ReconstructedParticleData> result;
+  result.reserve( x.size() );
+  result.insert( result.end(), x.begin(), x.end() );
+  float epsilon = 1e-8;
+  for (size_t i = 0; i < y.size(); ++i) {
+    float mass1 = y.at(i).mass;
+    float px1 = y.at(i).momentum.x;
+    float py1 = y.at(i).momentum.y;
+    float pz1 = y.at(i).momentum.z;
+    for(std::vector<edm4hep::ReconstructedParticleData>::iterator
+          it = std::begin(result); it != std::end(result); ++it) {
+      float mass2 = it->mass;
+      float px2 = it->momentum.x;
+      float py2 = it->momentum.y;
+      float pz2 = it->momentum.z;
+      if ( abs(mass1-mass2) < epsilon &&
+	   abs(px1-px2) < epsilon &&
+	   abs(py1-py2) < epsilon &&
+	   abs(pz1-pz2) < epsilon ) {
+        result.erase(it);
+        break;
+      }
+    }
+  }
+  return ROOT::VecOps::RVec(result);
+}
+
 // return the full jets rather than the list of tags
 //  ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData>
 //  AnalysisFCChh::get_tagged_jets(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData>
