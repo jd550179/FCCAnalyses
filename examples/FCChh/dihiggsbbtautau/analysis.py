@@ -24,16 +24,32 @@ class Analysis():
         # self.prod_tag = "FCChh/fcc_v07/II/"
         # self.input_dir = "/bundle/data/ATLAS/jdegens/FCC//DelphesEvents/fcc_v07/II/"
         self.input_dir = "/eos/experiment/fcc/hh/generation/DelphesEvents/fcc_v07/II/"
+        
+        # Run over the full statistics and save it to one output file named
+        # <outputDir>/<process_name>.root
+        # 100TeV samples
+        # self.process_list = {
+            # 'mgp8_pp_tt012j_5f_blvblv': {'fraction': 1, 'chunks': 4},
+            # "pwp8_pp_hh_lambda100_5f_hhbbtata":{"fraction": 1},
+            # "pwp8_pp_hh_lambda240_5f_hhbbtata":{"fraction": 1},
+            # "pwp8_pp_hh_lambda300_5f_hhbbtata":{"fraction": 1},
+            # "pwp8_pp_hh_lambda000_5f_hhbbtata":{"fraction": 1}
+        # }
+
+        # Run over the full statistics and save it to one output file named
+        # <outputDir>/<process_name>.root
         self.process_list = {
-            # Run over the full statistics and save it to one output file named
-            # <outputDir>/<process_name>.root
-            'mgp8_pp_tt012j_5f_blvblv': {'fraction': 1, 'chunks': 4},
+            # 'mgp8_pp_tt012j_5f_84TeV_blvblv': {'fraction': 1, 'chunks': 4},
+            # 'pwp8_pp_hh_lambda100_5f_80TeV_SA_hhbbtata':{'fraction': 1}
+            "pwp8_pp_hh_lambda240_5f_80TeV_SA_hhbbtata": {'fraction':1},
+            "pwp8_pp_hh_lambda300_5f_80TeV_SA_hhbbtata": {'fraction':1}
         }
+        
 
         self.analysis_name = 'FCC-hh bbtautau analysis'
 
 
-        self.output_dir = "/bundle/data/ATLAS/jdegens/FCC/output_2025_02_25/v7/"
+        self.output_dir = "/bundle/data/ATLAS/jdegens/FCC/output_2025_03_15/run_analysis/"
     #__________________________________________________________
     def analyzers(self, df):
 
@@ -46,7 +62,7 @@ class Analysis():
                 #.Define("seljet_pT",     "getRP_pt(selected_jets)"
 
                 # b-tagged jets at medium working point
-                .Define("b_tagged_jets_loose", "AnalysisFCChh::get_tagged_jets(Jet, Jet_HF_tags, _Jet_HF_tags_particle, _Jet_HF_tags_parameters, 0)") #bit 1 = medium WP, see: https://github.com/delphes/delphes/blob/master/cards/FCC/scenarios/FCChh_I.tcl
+                .Define("b_tagged_jets_loose", "AnalysisFCChh::get_tagged_jets(Jet, Jet_HF_tags, _Jet_HF_tags_particle, _Jet_HF_tags_parameters, 1)") #bit 1 = medium WP, see: https://github.com/delphes/delphes/blob/master/cards/FCC/scenarios/FCChh_I.tcl
                 # select medium b-jets with pT > 30 GeV, |eta| < 4
                 .Define("selpt_bjets", "FCCAnalyses::ReconstructedParticle::sel_pt(30.)(b_tagged_jets_loose)")
                 .Define("sel_bjets_unsort", "FCCAnalyses::ReconstructedParticle::sel_eta(4)(selpt_bjets)")
@@ -66,7 +82,7 @@ class Analysis():
 
 
                 # Get tau jets
-                .Define("taus_tagged_loose", "AnalysisFCChh::get_tagged_jets(Jet, Jet_tau_tags, _Jet_tau_tags_particle, _Jet_tau_tags_parameters, 0)")
+                .Define("taus_tagged_loose", "AnalysisFCChh::get_tagged_jets(Jet, Jet_tau_tags, _Jet_tau_tags_particle, _Jet_tau_tags_parameters, 1)") # medium (1) ID to reduce jet->tauh fakes
                 .Define("selpt_taus", "FCCAnalyses::ReconstructedParticle::sel_pt(30.)(taus_tagged_loose)")
                 .Define("sel_taus_unsort", "FCCAnalyses::ReconstructedParticle::sel_eta(4)(selpt_taus)")
                 .Define("sel_taus", "AnalysisFCChh::SortParticleCollection(sel_taus_unsort)") #sort by pT
@@ -401,44 +417,3 @@ class Analysis():
 
 # example call for standalone file
 # python FCChhAnalyses/FCChh/ttHH/dataframe/analysis.py /eos/experiment/fcc/hh/generation/DelphesEvents/fcc_v04/mgp8_pp_tthh_lambda100_5f/events_152512217.root
-
-def run_analysis(infile, outfile, ncpus=0):
-    print ("Load cxx analyzers ... ",)
-    ROOT.gSystem.Load("libedm4hep")
-    print("loaded libedm4hep")
-    ROOT.gSystem.Load("libpodio")
-    print("loaded libpodio")
-
-    ROOT.gSystem.Load("libFCCAnalyses")
-    print("loaded libFCCAnalyses")
-
-    ROOT.gErrorIgnoreLevel = ROOT.kFatal
-    _edm  = ROOT.edm4hep.ReconstructedParticleData()
-    _pod  = ROOT.podio.ObjectID()
-    _fcc  = ROOT.getMC_px
-
-    print ('edm4hep  ',_edm)
-    print ('podio    ',_pod)
-    print ('fccana   ',_fcc)
-    
-    analysis = Analysis(infile, outfile, ncpus)
-    analysis.run()
-
-    tf = ROOT.TFile(infile)
-    entries = tf.events.GetEntries()
-    p = ROOT.TParameter(int)( "eventsProcessed", entries)
-    outf=ROOT.TFile(outfile,"UPDATE")
-    p.Write()
-    outf.Close()
-    tf.Close()
-    del analysis
-
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Run RDF ntuple analysis") 
-    parser.add_argument("--cpus", "-c", default = 0, type = int, help = "Number of CPUs to use")
-    parser.add_argument("--output", "-o",  default = "outputfile.root", help = "name of output rootfile")
-    parser.add_argument("--input", "-i", help = "input rootfile")
-    args = parser.parse_args()
-    run_analysis(args.input, args.output, args.cpus)
-    
