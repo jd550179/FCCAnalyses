@@ -38,6 +38,23 @@ ROOT::VecOps::RVec<edm4hep::MCParticleData>  sel_pdgID::operator() (ROOT::VecOps
 }
 
 
+remove_pdgID::remove_pdgID(int arg_pdg, bool arg_chargeconjugate) : m_pdg(arg_pdg), m_chargeconjugate( arg_chargeconjugate )  {};
+ROOT::VecOps::RVec<edm4hep::MCParticleData>  remove_pdgID::operator() (ROOT::VecOps::RVec<edm4hep::MCParticleData> in) {
+  ROOT::VecOps::RVec<edm4hep::MCParticleData> result;
+  result.reserve(in.size());
+  for (size_t i = 0; i < in.size(); ++i) {
+    auto & p = in[i];
+    if ( m_chargeconjugate ) {
+        if ( std::abs( p.PDG ) != std::abs( m_pdg)  ) result.emplace_back(p);
+    }
+    else {
+        if ( p.PDG != m_pdg ) result.emplace_back(p);
+    }
+  }
+  return result;
+}
+
+
 
 get_decay::get_decay(int arg_mother, int arg_daughters, bool arg_inf){m_mother=arg_mother; m_daughters=arg_daughters; m_inf=arg_inf;};
 bool get_decay::operator() (ROOT::VecOps::RVec<edm4hep::MCParticleData> in,  ROOT::VecOps::RVec<int> ind){

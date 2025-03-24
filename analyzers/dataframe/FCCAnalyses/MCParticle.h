@@ -52,6 +52,14 @@ namespace MCParticle{
     ROOT::VecOps::RVec<edm4hep::MCParticleData>  operator() (ROOT::VecOps::RVec<edm4hep::MCParticleData> in);
   };
 
+  /// select MCParticles with their PDG id
+  struct remove_pdgID {
+      remove_pdgID(int arg_pdg, bool arg_chargeconjugate);
+      int m_pdg = 13;
+      bool m_chargeconjugate = true;
+      ROOT::VecOps::RVec<edm4hep::MCParticleData>  operator() (ROOT::VecOps::RVec<edm4hep::MCParticleData> in);
+    };
+
   /// get MC history tree for a given MCParticle index
   struct get_tree{
     get_tree(int arg_index);

@@ -28,28 +28,30 @@ class Analysis():
         # Run over the full statistics and save it to one output file named
         # <outputDir>/<process_name>.root
         # 100TeV samples
-        # self.process_list = {
-            # 'mgp8_pp_tt012j_5f_blvblv': {'fraction': 1, 'chunks': 4},
-            # "pwp8_pp_hh_lambda100_5f_hhbbtata":{"fraction": 1},
+        self.process_list = {
+            # 'mgp8_pp_tt012j_5f_blvblv': {'fraction': 1, 'chunks': 1},
+            # 'mgp8_pp_tt_5f': {'fraction':1},
+            'mgp8_pp_tt012j_5f_84TeV': {'fraction':1},            
+            #"pwp8_pp_hh_lambda100_5f_hhbbtata":{"fraction": 1},
             # "pwp8_pp_hh_lambda240_5f_hhbbtata":{"fraction": 1},
             # "pwp8_pp_hh_lambda300_5f_hhbbtata":{"fraction": 1},
             # "pwp8_pp_hh_lambda000_5f_hhbbtata":{"fraction": 1}
-        # }
+        }
 
         # Run over the full statistics and save it to one output file named
         # <outputDir>/<process_name>.root
-        self.process_list = {
+        # self.process_list = {
             # 'mgp8_pp_tt012j_5f_84TeV_blvblv': {'fraction': 1, 'chunks': 4},
             # 'pwp8_pp_hh_lambda100_5f_80TeV_SA_hhbbtata':{'fraction': 1}
-            "pwp8_pp_hh_lambda240_5f_80TeV_SA_hhbbtata": {'fraction':1},
-            "pwp8_pp_hh_lambda300_5f_80TeV_SA_hhbbtata": {'fraction':1}
-        }
+            # "pwp8_pp_hh_lambda240_5f_80TeV_SA_hhbbtata": {'fraction':1},
+            # "pwp8_pp_hh_lambda300_5f_80TeV_SA_hhbbtata": {'fraction':1}
+        # }
         
 
         self.analysis_name = 'FCC-hh bbtautau analysis'
 
 
-        self.output_dir = "/bundle/data/ATLAS/jdegens/FCC/output_2025_03_15/run_analysis/"
+        self.output_dir = "/bundle/data/ATLAS/jdegens/FCC/output_ttbarfaketest/run_analysis/"
     #__________________________________________________________
     def analyzers(self, df):
 
@@ -94,6 +96,27 @@ class Analysis():
                 .Define("tau_mass",  "FCCAnalyses::ReconstructedParticle::get_mass(sel_taus)")
                 .Define("tau_charge",  "FCCAnalyses::ReconstructedParticle::get_charge(sel_taus)")
                 
+                #all MC particles
+                .Define("mc_particles", "Particle")
+                #truth taus
+                .Define("mc_outgoing", "FCCAnalyses::MCParticle::sel_genStatus(2)(mc_particles)")
+                .Define("mc_outgoing_topfiltered", "FCCAnalyses::MCParticle::remove_pdgID(6, true)(mc_outgoing)")
+                .Define("taus_genmatched", "AnalysisFCChh::find_truth_matches(mc_outgoing, sel_taus, 0.1)")
+                .Define("taus_genmatched_pdgID", "FCCAnalyses::MCParticle::get_pdg(taus_genmatched)")
+                .Define("taus_genmatched_status", "FCCAnalyses::MCParticle::get_genStatus(taus_genmatched)")
+
+                #all MC particles
+                # .Define("mc_particles", "Particle")
+                #truth taus
+                .Define("mc_taus_all", "FCCAnalyses::MCParticle::sel_pdgID(15, true)(mc_particles)")
+                .Define("mc_taus", "FCCAnalyses::MCParticle::sel_genStatus(2)(mc_taus_all)")
+                .Define("taus_genmatched_v2", "AnalysisFCChh::find_truth_matches(mc_taus, sel_taus, 0.1)")
+                .Define("taus_genmatched_pdgID_v2", "FCCAnalyses::MCParticle::get_pdg(taus_genmatched_v2)")
+                .Define("taus_genmatched_status_v2", "FCCAnalyses::MCParticle::get_genStatus(taus_genmatched_v2)")
+                .Define("taus_genmatched_pt_v2", "FCCAnalyses::MCParticle::get_pt(taus_genmatched_v2)")
+                .Define("taus_genmatched_eta_v2", "FCCAnalyses::MCParticle::get_eta(taus_genmatched_v2)")
+                .Define("taus_genmatched_phi_v2", "FCCAnalyses::MCParticle::get_phi(taus_genmatched_v2)")
+
 
                 # get light (untagged) jets
                 #.Define("nontags", 'AnalysisFCChh::get_untagged_jets(Jet, Jet_HF_tags, _Jet_HF_tags_particle, _Jet_tau_tags_particle, 0)')
@@ -391,6 +414,15 @@ class Analysis():
             "lepton_eta",
             "lepton_phi",
             "lepton_charge",
+
+            "taus_genmatched",
+            "taus_genmatched_pdgID",
+            "taus_genmatched_status",
+            "taus_genmatched_status_v2",
+            "taus_genmatched_pdgID_v2",
+            "taus_genmatched_pt_v2",
+            "taus_genmatched_eta_v2",
+            "taus_genmatched_phi_v2"
                 
             # "dphi_lep1_met",
             # "dphi_tau1_met",
